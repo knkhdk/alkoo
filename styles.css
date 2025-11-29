@@ -276,3 +276,81 @@ tbody tr:hover td:first-child {
     }
 }
 
+.daily-section {
+    padding: 40px;
+    background: #f8f9fa;
+    border-top: 2px solid #e9ecef;
+}
+
+.daily-section h2 {
+    margin-bottom: 30px;
+    color: #495057;
+    font-size: 1.8em;
+}
+
+.daily-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.daily-controls label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.daily-controls select {
+    padding: 10px 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1em;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.daily-controls select:hover {
+    border-color: #667eea;
+}
+
+.daily-view-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.daily-view-toggle button {
+    padding: 12px 24px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.daily-view-toggle button:hover {
+    background: #f0f0ff;
+}
+
+.daily-view-toggle button.active {
+    background: #667eea;
+    color: white;
+}
+
+.daily-view-section {
+    display: none;
+}
+
+.daily-view-section.active {
+    display: block;
+}
+
