@@ -596,23 +596,23 @@ function renderStats() {
         card.innerHTML = `
             <h3>${teamIcon ? teamIcon + ' ' : ''}${participant.name}${rankingIcon ? ' ' + rankingIcon : ''}</h3>
             <div class="stat-item">
-                <span class="stat-label">合計歩数:</span>
+                <span class="stat-label">全期間平均:</span>
+                <span class="stat-value">${stats.average.toLocaleString()}歩/日</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">月平均合計:</span>
                 <span class="stat-value">${stats.total.toLocaleString()}歩</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">平均歩数:</span>
-                <span class="stat-value">${stats.average.toLocaleString()}歩</span>
+                <span class="stat-label">最高月平均:</span>
+                <span class="stat-value">${stats.max.toLocaleString()}歩/日</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">最大歩数:</span>
-                <span class="stat-value">${stats.max.toLocaleString()}歩</span>
+                <span class="stat-label">最低月平均:</span>
+                <span class="stat-value">${stats.min.toLocaleString()}歩/日</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">最小歩数:</span>
-                <span class="stat-value">${stats.min.toLocaleString()}歩</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">データ数:</span>
+                <span class="stat-label">記録月数:</span>
                 <span class="stat-value">${stats.count}ヶ月</span>
             </div>
         `;
