@@ -273,7 +273,7 @@ function loadData() {
 // アプリを初期化
 function initializeApp() {
     populateParticipantFilter();
-    renderTable();
+    renderChart();
     renderStats();
     setupEventListeners();
 }
