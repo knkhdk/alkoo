@@ -569,6 +569,8 @@ function renderStats() {
     // チームアイコンを取得する関数
     function getTeamIcon(teamName) {
         if (!teamName) return '';
+        if (teamName.includes('北')) return '⛄'; // 北チーム
+        if (teamName.includes('南')) return '🌺'; // 南チーム
         if (teamName.includes('うさぎ')) return '🐰';
         if (teamName.includes('かめ')) return '🐢';
         return '';
@@ -787,16 +789,33 @@ function renderTeamComparisonChart() {
 
     // データセットを作成
     const datasets = Object.keys(teamAverages).map((teamName, index) => {
-        const colors = [
-            'rgba(102, 126, 234, 0.8)',  // うさぎさんチーム用
-            'rgba(118, 75, 162, 0.8)'    // かめさんチーム用
-        ];
+        // チームごとの色設定
+        let borderColor = 'rgba(75, 192, 192, 0.8)'; // デフォルト（緑系）
+        
+        if (teamName.includes('うさぎ')) {
+            borderColor = 'rgba(102, 126, 234, 0.8)'; // 青紫
+        } else if (teamName.includes('かめ')) {
+            borderColor = 'rgba(118, 75, 162, 0.8)'; // 紫
+        } else if (teamName.includes('北')) {
+            borderColor = 'rgba(54, 162, 235, 0.8)'; // 青（寒色）
+        } else if (teamName.includes('南')) {
+            borderColor = 'rgba(255, 99, 132, 0.8)'; // 赤（暖色）
+        } else {
+            // その他のチームはインデックスに基づいて色を決定
+            const defaultColors = [
+                'rgba(255, 159, 64, 0.8)', // オレンジ
+                'rgba(153, 102, 255, 0.8)', // 紫
+                'rgba(255, 205, 86, 0.8)', // 黄色
+                'rgba(201, 203, 207, 0.8)' // グレー
+            ];
+            borderColor = defaultColors[index % defaultColors.length];
+        }
         
         return {
             label: teamName,
             data: teamAverages[teamName],
-            borderColor: colors[index % colors.length],
-            backgroundColor: colors[index % colors.length].replace('0.8', '0.2'),
+            borderColor: borderColor,
+            backgroundColor: borderColor.replace('0.8', '0.2'),
             borderWidth: 3,
             fill: true,
             tension: 0.4,

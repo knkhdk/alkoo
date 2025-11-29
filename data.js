@@ -306,7 +306,7 @@ const allDailyDataConverted = {
     "participants": [
       {
         "name": "見習いのコウキ",
-        "team": "うさぎさんチーム",
+        "team": "北チーム",
         "steps": [
           18257,
           16943,
@@ -341,7 +341,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "すーさん",
-        "team": "かめさんチーム",
+        "team": "南チーム",
         "steps": [
           12495,
           15490,
@@ -376,7 +376,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "元キリギリス",
-        "team": "うさぎさんチーム",
+        "team": "南チーム",
         "steps": [
           10604,
           8690,
@@ -411,7 +411,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "孫次郎",
-        "team": "かめさんチーム",
+        "team": "北チーム",
         "steps": [
           9617,
           10117,
@@ -446,7 +446,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "かがやん",
-        "team": "うさぎさんチーム",
+        "team": "北チーム",
         "steps": [
           null,
           null,
@@ -481,7 +481,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "すし",
-        "team": "かめさんチーム",
+        "team": "南チーム",
         "steps": [
           null,
           null,
@@ -516,7 +516,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "加賀藩",
-        "team": "うさぎさんチーム",
+        "team": "北チーム",
         "steps": [
           null,
           null,
@@ -551,7 +551,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "ボブ",
-        "team": "かめさんチーム",
+        "team": "北チーム",
         "steps": [
           null,
           null,
@@ -586,7 +586,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "ハッチ",
-        "team": "うさぎさんチーム",
+        "team": "南チーム",
         "steps": [
           6754,
           4673,
@@ -621,7 +621,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "サキ",
-        "team": "かめさんチーム",
+        "team": "南チーム",
         "steps": [
           2448,
           1844,
