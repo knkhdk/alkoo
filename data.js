@@ -376,7 +376,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "元キリギリス",
-        "team": "かめさんチーム",
+        "team": "うさぎさんチーム",
         "steps": [
           10604,
           8690,
@@ -411,7 +411,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "孫次郎",
-        "team": "うさぎさんチーム",
+        "team": "かめさんチーム",
         "steps": [
           9617,
           10117,
@@ -446,7 +446,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "かがやん",
-        "team": "かめさんチーム",
+        "team": "うさぎさんチーム",
         "steps": [
           null,
           null,
@@ -481,7 +481,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "すし",
-        "team": "うさぎさんチーム",
+        "team": "かめさんチーム",
         "steps": [
           null,
           null,
@@ -516,7 +516,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "加賀藩",
-        "team": "かめさんチーム",
+        "team": "うさぎさんチーム",
         "steps": [
           null,
           null,
@@ -551,7 +551,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "ボブ",
-        "team": "うさぎさんチーム",
+        "team": "かめさんチーム",
         "steps": [
           null,
           null,
@@ -586,7 +586,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "ハッチ",
-        "team": "かめさんチーム",
+        "team": "うさぎさんチーム",
         "steps": [
           6754,
           4673,
@@ -621,7 +621,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "サキ",
-        "team": "うさぎさんチーム",
+        "team": "かめさんチーム",
         "steps": [
           2448,
           1844,
