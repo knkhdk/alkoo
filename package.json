@@ -1,0 +1,16 @@
+{
+  "name": "alkoo-step-data",
+  "version": "1.0.0",
+  "description": "歩数データ可視化アプリケーション",
+  "main": "build-data.js",
+  "scripts": {
+    "build": "node build-data.js"
+  },
+  "keywords": ["step", "data", "visualization"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
+
