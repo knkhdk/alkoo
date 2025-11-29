@@ -376,7 +376,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "元キリギリス",
-        "team": "うさぎさんチーム",
+        "team": "かめさんチーム",
         "steps": [
           10604,
           8690,
