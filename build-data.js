@@ -132,8 +132,8 @@ function convertDailyExcelData(excelRows, sheetName = null) {
         });
         
         return {
-            name: String(row[nameColumn] || ''),
-            team: teamColumn ? String(row[teamColumn] || '') : '',
+            name: String(row[nameColumn] || '').trim(),
+            team: teamColumn ? String(row[teamColumn] || '').trim() : '',
             steps: steps
         };
     }).filter(p => p.name);
