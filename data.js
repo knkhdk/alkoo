@@ -306,7 +306,7 @@ const allDailyDataConverted = {
     "participants": [
       {
         "name": "見習いのコウキ",
-        "team": "かめさんチーム",
+        "team": "うさぎさんチーム",
         "steps": [
           18257,
           16943,
@@ -376,7 +376,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "元キリギリス",
-        "team": "かめさんチーム",
+        "team": "うさぎさんチーム",
         "steps": [
           10604,
           8690,
@@ -446,7 +446,7 @@ const allDailyDataConverted = {
       },
       {
         "name": "かがやん",
-        "team": "かめさんチーム",
+        "team": "うさぎさんチーム",
         "steps": [
           null,
           null,
