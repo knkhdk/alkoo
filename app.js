@@ -4,6 +4,7 @@ let dailyData = null;
 let dailyChart = null;
 let teamComparisonChart = null;
 let allDailyData = {}; // 複数月の日別データを保持 { "11月2025": {...}, "12月2025": {...} }
+let currentStatsMode = 'all'; // 'all' (全期間) or 'monthly' (今月/選択月)
 
 // データはdata.jsから読み込まれます
 // stepDataとallDailyDataConvertedがdata.jsで定義されている必要があります
@@ -530,14 +531,68 @@ function renderStats() {
     const container = document.getElementById('stats-container');
     container.innerHTML = '';
 
-    // 11月のランキングを取得
+    // 11月のランキングを取得（常に最新月の平均歩数でランク付け）
     const novemberRanking = calculateNovemberRanking();
     
-    // 11月の平均歩数を取得してソート用のデータを作成
-    const participantsWithNovemberAverage = data.participants.map(participant => {
+    // データを準備
+    let statsData = [];
+    
+    if (currentStatsMode === 'all') {
+        // 全期間（月別）データを使用
+        statsData = data.participants.map(participant => {
+            const stats = calculateStats(participant);
+            return {
+                participant: participant,
+                stats: stats,
+                rankingValue: 0 // ソート用（後で設定）
+            };
+        });
+    } else {
+        // 今月（日別）データを使用
+        if (!dailyData || !dailyData.participants) {
+            container.innerHTML = '<p>日別データがありません</p>';
+            return;
+        }
+        
+        statsData = dailyData.participants.map(participant => {
+            // 日別データから統計を計算
+            const validSteps = participant.steps.filter(step => step !== null && step !== undefined);
+            let stats = {
+                total: 0,
+                average: 0,
+                max: 0,
+                min: 0,
+                count: 0
+            };
+            
+            if (validSteps.length > 0) {
+                const total = validSteps.reduce((sum, step) => sum + step, 0);
+                stats = {
+                    total: total,
+                    average: Math.round(total / validSteps.length),
+                    max: Math.max(...validSteps),
+                    min: Math.min(...validSteps),
+                    count: validSteps.length
+                };
+            }
+            
+            // 元の月別データの参加者情報も必要（名前の一致で検索）
+            const originalParticipant = data.participants.find(p => p.name === participant.name) || { name: participant.name };
+            
+            return {
+                participant: originalParticipant,
+                stats: stats,
+                rankingValue: stats.average
+            };
+        });
+    }
+    
+    // 11月の平均歩数を取得してソート（ランキング順に表示）
+    // モードに関わらず、ランキング順（最新月の平均歩数順）で表示するのが自然
+    statsData.forEach(item => {
         let novemberAverage = 0;
         if (dailyData && dailyData.participants) {
-            const dailyParticipant = dailyData.participants.find(p => p.name === participant.name);
+            const dailyParticipant = dailyData.participants.find(p => p.name === item.participant.name);
             if (dailyParticipant) {
                 const validSteps = dailyParticipant.steps.filter(step => step !== null && step !== undefined);
                 if (validSteps.length > 0) {
@@ -545,14 +600,11 @@ function renderStats() {
                 }
             }
         }
-        return {
-            participant: participant,
-            novemberAverage: novemberAverage
-        };
+        item.rankingValue = novemberAverage;
     });
     
-    // 11月の平均歩数でソート（降順）
-    participantsWithNovemberAverage.sort((a, b) => b.novemberAverage - a.novemberAverage);
+    // ソート
+    statsData.sort((a, b) => b.rankingValue - a.rankingValue);
 
     // ランキングアイコンのHTMLを生成
     function getRankingIcon(rank) {
@@ -576,8 +628,7 @@ function renderStats() {
         return '';
     }
 
-    participantsWithNovemberAverage.forEach(({ participant, novemberAverage }) => {
-        const stats = calculateStats(participant);
+    statsData.forEach(({ participant, stats }) => {
         const rank = novemberRanking[participant.name];
         const rankingIcon = rank ? getRankingIcon(rank) : '';
         
@@ -592,6 +643,10 @@ function renderStats() {
         
         const card = document.createElement('div');
         card.className = 'stat-card';
+        
+        // ラベルの単位を設定
+        const countUnit = currentStatsMode === 'all' ? 'ヶ月' : '日';
+        const countLabel = currentStatsMode === 'all' ? 'データ数' : '記録日数';
         
         card.innerHTML = `
             <h3>${teamIcon ? teamIcon + ' ' : ''}${participant.name}${rankingIcon ? ' ' + rankingIcon : ''}</h3>
@@ -612,8 +667,8 @@ function renderStats() {
                 <span class="stat-value">${stats.min.toLocaleString()}歩</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">データ数:</span>
-                <span class="stat-value">${stats.count}ヶ月</span>
+                <span class="stat-label">${countLabel}:</span>
+                <span class="stat-value">${stats.count}${countUnit}</span>
             </div>
         `;
         
@@ -666,6 +721,30 @@ function setupEventListeners() {
         renderTable(selected);
         renderChart(selected);
     });
+
+    // 統計情報の切り替え
+    const statsAllBtn = document.getElementById('stats-all-btn');
+    const statsMonthlyBtn = document.getElementById('stats-monthly-btn');
+    
+    if (statsAllBtn && statsMonthlyBtn) {
+        statsAllBtn.addEventListener('click', () => {
+            if (currentStatsMode !== 'all') {
+                currentStatsMode = 'all';
+                statsAllBtn.classList.add('active');
+                statsMonthlyBtn.classList.remove('active');
+                renderStats();
+            }
+        });
+        
+        statsMonthlyBtn.addEventListener('click', () => {
+            if (currentStatsMode !== 'monthly') {
+                currentStatsMode = 'monthly';
+                statsMonthlyBtn.classList.add('active');
+                statsAllBtn.classList.remove('active');
+                renderStats();
+            }
+        });
+    }
 }
 
 // ビューを切り替え
