@@ -36,8 +36,9 @@ function convertMonthlyExcelData(excelRows) {
         col.includes('名前') || col.toLowerCase().includes('name') || col.includes('参加者') || col.includes('登録名')
     ) || columns[0];
     
-    // 月の列をソート
-    const sortedMonthColumns = monthColumns.sort();
+    // 月の列をソート（Excelの列順序を維持する場合はソートしない）
+    // Excelの列が時系列順（左から右）に並んでいることを前提とする
+    const sortedMonthColumns = monthColumns;
     
     // 参加者データを構築
     const participants = excelRows.map(row => {
