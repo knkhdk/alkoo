@@ -37,6 +37,40 @@ header h1 {
 .subtitle {
     font-size: 1.1em;
     opacity: 0.9;
+    margin-bottom: 20px;
+}
+
+.file-upload-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-upload-label {
+    display: inline-block;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.file-upload-label:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.file-status {
+    font-size: 0.9em;
+    opacity: 0.9;
+    margin-top: 5px;
 }
 
 .controls {
@@ -274,6 +308,18 @@ tbody tr:hover td:first-child {
     .chart-container {
         height: 400px;
     }
+}
+
+.team-comparison-section {
+    padding: 40px;
+    background: #f8f9fa;
+    border-top: 2px solid #e9ecef;
+}
+
+.team-comparison-section h2 {
+    margin-bottom: 30px;
+    color: #495057;
+    font-size: 1.8em;
 }
 
 .daily-section {

@@ -6,17 +6,42 @@
     <title>日別・月別歩数</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>日別・月別歩数</h1>
             <p class="subtitle">参加者の日別・月別歩数データを表示</p>
+            <div class="file-upload-section">
+                <label for="excel-file-input" class="file-upload-label">
+                    📁 Excelファイルを選択（.xlsx）
+                </label>
+                <input type="file" id="excel-file-input" accept=".xlsx,.xls" style="display: none;">
+                <span id="file-status" class="file-status"></span>
+            </div>
         </header>
 
-        <div id="daily-section" class="daily-section">
-            <h2>11月の日別データ</h2>
+        <div id="team-comparison-section" class="team-comparison-section">
+            <h2>チーム平均値比較</h2>
             <div class="daily-controls">
+                <label for="team-month-select">月を選択:</label>
+                <select id="team-month-select">
+                    <option value="">月を選択</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="team-comparison-chart"></canvas>
+            </div>
+        </div>
+
+        <div id="daily-section" class="daily-section">
+            <h2>日別データ</h2>
+            <div class="daily-controls">
+                <label for="daily-month-select">月を選択:</label>
+                <select id="daily-month-select">
+                    <option value="">月を選択</option>
+                </select>
                 <label for="daily-participant-filter">参加者でフィルター:</label>
                 <select id="daily-participant-filter">
                     <option value="all">すべて表示</option>
@@ -83,6 +108,7 @@
         </div>
     </div>
 
+    <script src="excel-loader.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -2,6 +2,8 @@ let data = null;
 let chart = null;
 let dailyData = null;
 let dailyChart = null;
+let teamComparisonChart = null;
+let allDailyData = {}; // 複数月の日別データを保持 { "11月2025": {...}, "12月2025": {...} }
 
 // データを直接定義（CORSエラーを回避）
 const stepData = {
@@ -302,9 +304,10 @@ function loadData() {
 function initializeApp() {
     populateParticipantFilter();
     renderChart();
-    renderStats();
     setupEventListeners();
     initializeDailyData();
+    // 日別データ初期化後に統計情報を表示（ランキング計算のため）
+    renderStats();
 }
 
 // 参加者フィルターを設定
@@ -468,18 +471,87 @@ function renderChart(filteredParticipant = 'all') {
     });
 }
 
+// 11月の平均歩数ランキングを計算
+function calculateNovemberRanking() {
+    if (!dailyData || !dailyData.participants) {
+        return {};
+    }
+
+    // 各参加者の11月の平均歩数を計算
+    const novemberAverages = dailyData.participants.map(participant => {
+        const validSteps = participant.steps.filter(step => step !== null && step !== undefined);
+        const average = validSteps.length > 0 
+            ? Math.round(validSteps.reduce((sum, step) => sum + step, 0) / validSteps.length)
+            : 0;
+        return {
+            name: participant.name,
+            average: average
+        };
+    });
+
+    // 平均歩数でソート（降順）
+    novemberAverages.sort((a, b) => b.average - a.average);
+
+    // 1位から5位までのランキングを作成
+    const ranking = {};
+    novemberAverages.slice(0, 5).forEach((item, index) => {
+        ranking[item.name] = index + 1;
+    });
+
+    return ranking;
+}
+
 // 統計情報をレンダリング
 function renderStats() {
     const container = document.getElementById('stats-container');
     container.innerHTML = '';
 
-    data.participants.forEach(participant => {
+    // 11月のランキングを取得
+    const novemberRanking = calculateNovemberRanking();
+    
+    // 11月の平均歩数を取得してソート用のデータを作成
+    const participantsWithNovemberAverage = data.participants.map(participant => {
+        let novemberAverage = 0;
+        if (dailyData && dailyData.participants) {
+            const dailyParticipant = dailyData.participants.find(p => p.name === participant.name);
+            if (dailyParticipant) {
+                const validSteps = dailyParticipant.steps.filter(step => step !== null && step !== undefined);
+                if (validSteps.length > 0) {
+                    novemberAverage = Math.round(validSteps.reduce((sum, step) => sum + step, 0) / validSteps.length);
+                }
+            }
+        }
+        return {
+            participant: participant,
+            novemberAverage: novemberAverage
+        };
+    });
+    
+    // 11月の平均歩数でソート（降順）
+    participantsWithNovemberAverage.sort((a, b) => b.novemberAverage - a.novemberAverage);
+
+    // ランキングアイコンのHTMLを生成
+    function getRankingIcon(rank) {
+        const icons = {
+            1: '🥇',
+            2: '🥈',
+            3: '🥉',
+            4: '4️⃣',
+            5: '5️⃣'
+        };
+        return icons[rank] || '';
+    }
+
+    participantsWithNovemberAverage.forEach(({ participant, novemberAverage }) => {
         const stats = calculateStats(participant);
+        const rank = novemberRanking[participant.name];
+        const rankingIcon = rank ? getRankingIcon(rank) : '';
+        
         const card = document.createElement('div');
         card.className = 'stat-card';
         
         card.innerHTML = `
-            <h3>${participant.name}</h3>
+            <h3>${participant.name}${rankingIcon ? ' ' + rankingIcon : ''}</h3>
             <div class="stat-item">
                 <span class="stat-label">合計歩数:</span>
                 <span class="stat-value">${stats.total.toLocaleString()}歩</span>
@@ -718,6 +790,7 @@ function convertDailyData(rawData) {
     }
     return {
       name: person["名前"],
+      team: person["チーム"],
       steps: steps
     };
   });
@@ -730,19 +803,206 @@ function convertDailyData(rawData) {
 }
 
 // 11月の日別データ
-const dailyStepData = convertDailyData(novemberDailyData);
+let dailyStepData = convertDailyData(novemberDailyData);
 
 // 日別データを初期化
 function initializeDailyData() {
-    dailyData = dailyStepData;
-    if (dailyData.participants.length > 0) {
-        populateDailyParticipantFilter();
-        renderDailyChart();
+    // 初期データをallDailyDataに追加
+    if (dailyStepData && dailyStepData.participants.length > 0) {
+        allDailyData[dailyStepData.month] = dailyStepData;
+    }
+    
+    // 利用可能な月があれば、最初の月を表示
+    const availableMonths = Object.keys(allDailyData);
+    if (availableMonths.length > 0) {
+        const defaultMonth = availableMonths[availableMonths.length - 1]; // 最新の月
+        dailyData = allDailyData[defaultMonth];
+        
+        updateMonthSelectors();
+        selectDailyMonth(defaultMonth);
+        selectTeamMonth(defaultMonth);
         setupDailyEventListeners();
     } else {
         // データがない場合はセクションを非表示
         document.getElementById('daily-section').style.display = 'none';
+        document.getElementById('team-comparison-section').style.display = 'none';
     }
+}
+
+// チーム平均値比較グラフをレンダリング
+function renderTeamComparisonChart() {
+    const ctx = document.getElementById('team-comparison-chart');
+    
+    if (!dailyData || !dailyData.participants || dailyData.participants.length === 0) {
+        console.warn('日別データがありません。チーム比較グラフを描画できません。');
+        return;
+    }
+    
+    // 既存のチャートを破棄
+    if (teamComparisonChart) {
+        teamComparisonChart.destroy();
+    }
+
+    // チームごとにデータをグループ化
+    const teams = {};
+    dailyData.participants.forEach(participant => {
+        // チーム情報がない場合はスキップ
+        if (!participant.team || participant.team.trim() === '') {
+            console.warn(`参加者 "${participant.name}" にチーム情報がありません`);
+            return;
+        }
+        
+        if (!teams[participant.team]) {
+            teams[participant.team] = [];
+        }
+        teams[participant.team].push(participant);
+    });
+
+    console.log('チームグループ:', Object.keys(teams));
+    console.log('各チームの参加者数:', Object.keys(teams).map(team => `${team}: ${teams[team].length}人`));
+    console.log('dailyData.days:', dailyData.days);
+    console.log('dailyData.days.length:', dailyData.days ? dailyData.days.length : 0);
+
+    // 日数が30日固定ではなく、実際の日数を使用
+    // 参加者のステップ配列の長さから日数を取得（days配列が空の場合のフォールバック）
+    let dayCount = dailyData.days ? dailyData.days.length : 0;
+    if (dayCount === 0 && dailyData.participants.length > 0) {
+        // days配列が空の場合は、最初の参加者のステップ配列の長さを使用
+        dayCount = dailyData.participants[0].steps ? dailyData.participants[0].steps.length : 0;
+        console.log(`days配列が空のため、参加者のステップ配列から日数を取得: ${dayCount}日`);
+    }
+    
+    if (dayCount === 0) {
+        console.error('日数が0です。データが正しく読み込まれていません。');
+        return;
+    }
+
+    // チームごとの日別平均値を計算
+    const teamAverages = {};
+    Object.keys(teams).forEach(teamName => {
+        const teamMembers = teams[teamName];
+        const dailyAverages = [];
+        
+        for (let day = 0; day < dayCount; day++) {
+            let sum = 0;
+            let count = 0;
+            
+            teamMembers.forEach(member => {
+                if (member.steps && member.steps[day] !== null && member.steps[day] !== undefined) {
+                    sum += member.steps[day];
+                    count++;
+                }
+            });
+            
+            dailyAverages.push(count > 0 ? Math.round(sum / count) : null);
+        }
+        
+        teamAverages[teamName] = dailyAverages;
+    });
+
+    console.log('チーム平均値:', Object.keys(teamAverages).map(team => `${team}: ${teamAverages[team].filter(v => v !== null).length}日分のデータ`));
+
+    // データセットを作成
+    const datasets = Object.keys(teamAverages).map((teamName, index) => {
+        const colors = [
+            'rgba(102, 126, 234, 0.8)',  // うさぎさんチーム用
+            'rgba(118, 75, 162, 0.8)'    // かめさんチーム用
+        ];
+        
+        return {
+            label: teamName,
+            data: teamAverages[teamName],
+            borderColor: colors[index % colors.length],
+            backgroundColor: colors[index % colors.length].replace('0.8', '0.2'),
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        };
+    });
+
+    if (datasets.length === 0) {
+        console.error('チームデータが見つかりません。チーム情報が正しく読み込まれているか確認してください。');
+        return;
+    }
+
+    console.log(`チーム比較グラフを描画します（${datasets.length}チーム）`);
+
+    teamComparisonChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dailyData.days,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed.y;
+                            return value === null ? 'データなし' : context.dataset.label + ': ' + value.toLocaleString() + '歩（平均）';
+                        }
+                    }
+                },
+                title: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '平均歩数',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: '日',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
 }
 
 // 日別データの参加者フィルターを設定
@@ -924,6 +1184,28 @@ function setupDailyEventListeners() {
         renderDailyTable(selected);
         renderDailyChart(selected);
     });
+    
+    // 月選択変更
+    const dailyMonthSelect = document.getElementById('daily-month-select');
+    if (dailyMonthSelect) {
+        dailyMonthSelect.addEventListener('change', (e) => {
+            const selectedMonth = e.target.value;
+            if (selectedMonth) {
+                selectDailyMonth(selectedMonth);
+            }
+        });
+    }
+    
+    // チーム比較の月選択変更
+    const teamMonthSelect = document.getElementById('team-month-select');
+    if (teamMonthSelect) {
+        teamMonthSelect.addEventListener('change', (e) => {
+            const selectedMonth = e.target.value;
+            if (selectedMonth) {
+                selectTeamMonth(selectedMonth);
+            }
+        });
+    }
 }
 
 // 日別データのビューを切り替え
@@ -948,6 +1230,429 @@ function switchDailyView(view) {
     }
 }
 
+// Excelファイル読み込み機能
+function setupExcelFileLoader() {
+    const fileInput = document.getElementById('excel-file-input');
+    const fileStatus = document.getElementById('file-status');
+    
+    if (!fileInput) return;
+    
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            console.log('ファイルが選択されていません');
+            return;
+        }
+        
+        console.log('ファイルが選択されました:', file.name, file.size, 'bytes');
+        fileStatus.textContent = '読み込み中...';
+        
+        try {
+            // すべてのシートを読み込む
+            console.log('Excelファイルを読み込み中...');
+            const result = await loadAllExcelSheets(file);
+            
+            console.log('✓ Excelファイルの読み込みが完了しました');
+            console.log('シート数:', result.sheetNames.length);
+            console.log('シート名:', result.sheetNames);
+            
+            fileStatus.textContent = `✓ ${file.name} を読み込みました（${result.sheetNames.length}シート）`;
+            fileStatus.style.color = '#4caf50';
+            
+            // すべてのシートの内容をコンソールに表示
+            console.log('=== Excelファイルの内容 ===');
+            result.sheetNames.forEach(sheetName => {
+                console.log(`\n--- シート: ${sheetName} ---`);
+                console.log('データ件数:', result.sheets[sheetName].length);
+                if (result.sheets[sheetName].length > 0) {
+                    console.log('最初の行:', result.sheets[sheetName][0]);
+                    console.log('列名:', Object.keys(result.sheets[sheetName][0] || {}));
+                }
+            });
+            
+            // Excelデータを処理して表示に反映
+            console.log('データを処理中...');
+            processExcelData(result);
+            console.log('✓ データ処理が完了しました');
+            
+        } catch (error) {
+            fileStatus.textContent = `✗ エラー: ${error.message}`;
+            fileStatus.style.color = '#f44336';
+            console.error('Excelファイル読み込みエラー:', error);
+            console.error('エラーの詳細:', error.stack);
+        }
+    });
+}
+
+// Excelデータを処理して表示に反映
+function processExcelData(excelResult) {
+    const fileStatus = document.getElementById('file-status');
+    
+    try {
+        // シート名から月別と日別を識別
+        // シート名に「月別」「日別」「daily」「monthly」などのキーワードが含まれているか確認
+        let monthlySheetName = null;
+        let dailySheetName = null;
+        
+        excelResult.sheetNames.forEach(sheetName => {
+            const lowerName = sheetName.toLowerCase();
+            if (lowerName.includes('月別') || lowerName.includes('monthly') || lowerName.includes('month')) {
+                monthlySheetName = sheetName;
+            } else if (lowerName.includes('日別') || lowerName.includes('daily') || lowerName.includes('day') || lowerName.includes('11月')) {
+                dailySheetName = sheetName;
+            }
+        });
+        
+        // シート名が特定できない場合は、最初のシートを月別、2番目を日別として扱う
+        if (!monthlySheetName && excelResult.sheetNames.length > 0) {
+            monthlySheetName = excelResult.sheetNames[0];
+        }
+        if (!dailySheetName && excelResult.sheetNames.length > 1) {
+            dailySheetName = excelResult.sheetNames[1];
+        }
+        
+        console.log('月別シート:', monthlySheetName);
+        console.log('日別シート:', dailySheetName);
+        
+        // 月別データを処理
+        if (monthlySheetName && excelResult.sheets[monthlySheetName]) {
+            try {
+                const monthlyData = convertMonthlyExcelData(excelResult.sheets[monthlySheetName]);
+                if (monthlyData && monthlyData.participants && monthlyData.participants.length > 0) {
+                    data = monthlyData;
+                    // 表示を更新
+                    populateParticipantFilter();
+                    renderChart();
+                    console.log(`月別データを更新しました（参加者数: ${monthlyData.participants.length}, 月数: ${monthlyData.months.length}）`);
+                } else {
+                    console.warn('月別データの変換に失敗しました');
+                }
+            } catch (error) {
+                console.error('月別データ処理エラー:', error);
+            }
+        } else {
+            console.warn('月別シートが見つかりませんでした');
+        }
+        
+        // 日別データを処理（複数の月のシートを処理）
+        // 月別シート以外のすべてのシートを日別データとして扱う
+        const dailySheetNames = new Set(); // 重複を防ぐためにSetを使用
+        
+        excelResult.sheetNames.forEach(sheetName => {
+            // 月別シートでない場合
+            if (sheetName !== monthlySheetName) {
+                dailySheetNames.add(sheetName);
+            }
+        });
+        
+        console.log('日別シート:', Array.from(dailySheetNames));
+        
+        // 各日別シートを処理
+        Array.from(dailySheetNames).forEach(sheetName => {
+            if (excelResult.sheets[sheetName]) {
+                try {
+                    const dailyData = convertDailyExcelData(excelResult.sheets[sheetName], sheetName);
+                    if (dailyData && dailyData.participants && dailyData.participants.length > 0) {
+                        allDailyData[dailyData.month] = dailyData;
+                        console.log(`${dailyData.month}の日別データを読み込みました（参加者数: ${dailyData.participants.length}）`);
+                    } else {
+                        console.warn(`${sheetName}のデータ変換に失敗しました`);
+                    }
+                } catch (error) {
+                    console.error(`${sheetName}の処理エラー:`, error);
+                }
+            }
+        });
+        
+        // 月選択ドロップダウンを更新
+        updateMonthSelectors();
+        
+        // 最初の月のデータを表示（または最後に選択した月）
+        const availableMonths = Object.keys(allDailyData);
+        if (availableMonths.length > 0) {
+            const defaultMonth = availableMonths[availableMonths.length - 1]; // 最新の月
+            console.log(`デフォルト月を選択: ${defaultMonth}`);
+            
+            // 日別データを先に選択（dailyDataを設定）
+            selectDailyMonth(defaultMonth);
+            
+            // その後、チーム比較グラフを描画（dailyDataが正しく設定された後）
+            selectTeamMonth(defaultMonth);
+        } else {
+            console.warn('日別データが見つかりませんでした');
+        }
+        
+        // 統計情報を更新（月別データと日別データの両方が更新された後）
+        renderStats(); // ランキングを再計算
+        
+        const monthlyInfo = data ? `月別: ${data.participants.length}人` : '月別: なし';
+        const dailyInfo = availableMonths.length > 0 ? `日別: ${availableMonths.length}ヶ月` : '日別: なし';
+        fileStatus.textContent = `✓ データを読み込み、表示を更新しました（${monthlyInfo}, ${dailyInfo}）`;
+        fileStatus.style.color = '#4caf50';
+        
+    } catch (error) {
+        console.error('Excelデータ処理エラー:', error);
+        fileStatus.textContent = `✗ データ処理エラー: ${error.message}`;
+        fileStatus.style.color = '#f44336';
+    }
+}
+
+// 月別Excelデータを変換
+function convertMonthlyExcelData(excelRows) {
+    try {
+        // 最初の行から列名を取得
+        if (excelRows.length === 0) return null;
+        
+        const firstRow = excelRows[0];
+        const columns = Object.keys(firstRow);
+        
+        // 月の列を特定（"3月2024", "4月"など）
+        const monthColumns = columns.filter(col => 
+            col.includes('月') || col.toLowerCase().includes('month')
+        );
+        
+        // 参加者名の列を特定（"名前", "name", "参加者"など）
+        const nameColumn = columns.find(col => 
+            col.includes('名前') || col.toLowerCase().includes('name') || col.includes('参加者')
+        ) || columns[0];
+        
+        // 月の列をソート（最初の列が最初の月）
+        const sortedMonthColumns = monthColumns.sort();
+        
+        // 参加者データを構築
+        const participants = excelRows.map(row => {
+            const steps = sortedMonthColumns.map(col => {
+                const value = row[col];
+                if (value === null || value === undefined || value === '' || (typeof value === 'number' && isNaN(value))) {
+                    return null;
+                }
+                return Math.round(Number(value));
+            });
+            
+            return {
+                name: String(row[nameColumn] || ''),
+                steps: steps
+            };
+        }).filter(p => p.name); // 名前が空の行を除外
+        
+        return {
+            months: sortedMonthColumns,
+            participants: participants
+        };
+    } catch (error) {
+        console.error('月別データ変換エラー:', error);
+        return null;
+    }
+}
+
+// 日別Excelデータを変換
+function convertDailyExcelData(excelRows, sheetName = null) {
+    try {
+        if (excelRows.length === 0) return null;
+        
+        const firstRow = excelRows[0];
+        const columns = Object.keys(firstRow);
+        
+        // 日付列を特定（数値キー、日付形式、または「上午/下午」形式）
+        const excludeColumns = ['名前', 'name', 'チーム', 'team', '登録名', '結果', '平均'];
+        
+        const dateColumns = columns.filter(col => {
+            // 除外する列をスキップ
+            if (excludeColumns.some(exclude => col.includes(exclude))) {
+                return false;
+            }
+            
+            // 数値キー（45962など）、日付形式、または「上午/下午」形式
+            return /^\d+$/.test(col) || 
+                   col.includes('日') || 
+                   col.toLowerCase().includes('date') ||
+                   col.includes('上午/下午') ||
+                   col.includes('時') ||
+                   col.includes('分');
+        }).sort((a, b) => {
+            // 「上午/下午」形式の場合は、列の順序を保持（Excelの列順序）
+            // 数値キーの場合は数値としてソート
+            const numA = parseInt(a);
+            const numB = parseInt(b);
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return numA - numB;
+            }
+            // 列のインデックスでソート（元の順序を保持）
+            const indexA = columns.indexOf(a);
+            const indexB = columns.indexOf(b);
+            return indexA - indexB;
+        });
+        
+        console.log('日付列として識別された列:', dateColumns);
+        console.log('日付列数:', dateColumns.length);
+        
+        // 名前とチームの列を特定
+        const nameColumn = columns.find(col => 
+            col.includes('名前') || col.toLowerCase().includes('name')
+        );
+        const teamColumn = columns.find(col => 
+            col.includes('チーム') || col.toLowerCase().includes('team')
+        );
+        
+        if (!nameColumn) {
+            console.error('名前列が見つかりません');
+            return null;
+        }
+        
+        // シート名から月を特定
+        let monthName = "11月2025"; // デフォルト
+        if (sheetName) {
+            // シート名に月が含まれている場合（例: "11月", "12月", "11月2025"）
+            const monthMatch = sheetName.match(/(\d+)月(\d{4})?/);
+            if (monthMatch) {
+                const month = monthMatch[1];
+                const year = monthMatch[2] || "2025";
+                monthName = `${month}月${year}`;
+            }
+        }
+        
+        // 日付ラベルを生成（1日から30日まで、または31日まで）
+        const maxDays = dateColumns.length;
+        const days = Array.from({length: maxDays}, (_, i) => `${i + 1}日`);
+        
+        console.log(`日付ラベルを生成: ${maxDays}日分`);
+        console.log('日付列:', dateColumns.slice(0, 5), '...', dateColumns.slice(-5));
+        
+        // 参加者データを構築
+        const participants = excelRows.map(row => {
+            const steps = dateColumns.map(col => {
+                const value = row[col];
+                if (value === null || value === undefined || value === '' || (typeof value === 'number' && isNaN(value))) {
+                    return null;
+                }
+                return Math.round(Number(value));
+            });
+            
+            return {
+                name: String(row[nameColumn] || ''),
+                team: teamColumn ? String(row[teamColumn] || '') : '',
+                steps: steps
+            };
+        }).filter(p => p.name); // 名前が空の行を除外
+        
+        console.log(`参加者データを構築: ${participants.length}人`);
+        if (participants.length > 0) {
+            console.log(`各参加者のステップ数:`, participants.map(p => `${p.name}: ${p.steps.filter(s => s !== null).length}日分`));
+        }
+        
+        return {
+            month: monthName,
+            days: days,
+            participants: participants
+        };
+    } catch (error) {
+        console.error('日別データ変換エラー:', error);
+        return null;
+    }
+}
+
+// 月選択ドロップダウンを更新
+function updateMonthSelectors() {
+    const dailyMonthSelect = document.getElementById('daily-month-select');
+    const teamMonthSelect = document.getElementById('team-month-select');
+    
+    const availableMonths = Object.keys(allDailyData).sort();
+    
+    // 日別データの月選択を更新
+    if (dailyMonthSelect) {
+        dailyMonthSelect.innerHTML = '<option value="">月を選択</option>';
+        availableMonths.forEach(month => {
+            const option = document.createElement('option');
+            option.value = month;
+            option.textContent = month;
+            dailyMonthSelect.appendChild(option);
+        });
+    }
+    
+    // チーム比較の月選択を更新
+    if (teamMonthSelect) {
+        teamMonthSelect.innerHTML = '<option value="">月を選択</option>';
+        availableMonths.forEach(month => {
+            const option = document.createElement('option');
+            option.value = month;
+            option.textContent = month;
+            teamMonthSelect.appendChild(option);
+        });
+    }
+}
+
+// 日別データの月を選択
+function selectDailyMonth(month) {
+    if (!allDailyData[month]) return;
+    
+    dailyData = allDailyData[month];
+    dailyStepData = dailyData;
+    
+    const dailyMonthSelect = document.getElementById('daily-month-select');
+    if (dailyMonthSelect) {
+        dailyMonthSelect.value = month;
+    }
+    
+    // 表示を更新
+    populateDailyParticipantFilter();
+    renderDailyChart();
+    
+    // セクションのタイトルを更新
+    const dailySectionTitle = document.querySelector('#daily-section h2');
+    if (dailySectionTitle) {
+        dailySectionTitle.textContent = `${month}の日別データ`;
+    }
+}
+
+// チーム比較の月を選択
+function selectTeamMonth(month) {
+    if (!allDailyData[month]) {
+        console.warn(`月 "${month}" のデータが見つかりません`);
+        return;
+    }
+    
+    const teamMonthSelect = document.getElementById('team-month-select');
+    if (teamMonthSelect) {
+        teamMonthSelect.value = month;
+    }
+    
+    // dailyDataが既に正しい月に設定されている場合はそのまま使用
+    // そうでない場合は一時的に変更
+    const targetData = allDailyData[month];
+    const originalDailyData = dailyData;
+    
+    // dailyDataが正しく設定されていない場合のみ変更
+    if (!dailyData || dailyData.month !== month) {
+        dailyData = targetData;
+    }
+    
+    console.log(`チーム比較グラフを描画中（${month}）`);
+    console.log('日別データ:', dailyData);
+    console.log('日数:', dailyData.days ? dailyData.days.length : 0);
+    console.log('参加者数:', dailyData.participants ? dailyData.participants.length : 0);
+    if (dailyData.participants) {
+        console.log('参加者のチーム情報:', dailyData.participants.map(p => `${p.name}: ${p.team || 'なし'}`));
+    }
+    
+    renderTeamComparisonChart();
+    
+    // 元のdailyDataに戻す（ただし、selectDailyMonthで既に設定されている場合はそのまま）
+    if (originalDailyData && originalDailyData.month !== month) {
+        dailyData = originalDailyData;
+    }
+    
+    // セクションのタイトルを更新
+    const teamSectionTitle = document.querySelector('#team-comparison-section h2');
+    if (teamSectionTitle) {
+        teamSectionTitle.textContent = `チーム平均値比較（${month}）`;
+    }
+}
+
 // ページ読み込み時にデータを読み込む
 loadData();
+
+// Excelファイル読み込み機能を設定
+if (typeof loadAllExcelSheets !== 'undefined') {
+    setupExcelFileLoader();
+}
 
