@@ -566,16 +566,33 @@ function renderStats() {
         return icons[rank] || '';
     }
 
+    // チームアイコンを取得する関数
+    function getTeamIcon(teamName) {
+        if (!teamName) return '';
+        if (teamName.includes('うさぎ')) return '🐰';
+        if (teamName.includes('かめ')) return '🐢';
+        return '';
+    }
+
     participantsWithNovemberAverage.forEach(({ participant, novemberAverage }) => {
         const stats = calculateStats(participant);
         const rank = novemberRanking[participant.name];
         const rankingIcon = rank ? getRankingIcon(rank) : '';
         
+        // チーム情報を取得
+        let teamIcon = '';
+        if (dailyData && dailyData.participants) {
+            const dailyParticipant = dailyData.participants.find(p => p.name === participant.name);
+            if (dailyParticipant && dailyParticipant.team) {
+                teamIcon = getTeamIcon(dailyParticipant.team);
+            }
+        }
+        
         const card = document.createElement('div');
         card.className = 'stat-card';
         
         card.innerHTML = `
-            <h3>${participant.name}${rankingIcon ? ' ' + rankingIcon : ''}</h3>
+            <h3>${teamIcon ? teamIcon + ' ' : ''}${participant.name}${rankingIcon ? ' ' + rankingIcon : ''}</h3>
             <div class="stat-item">
                 <span class="stat-label">合計歩数:</span>
                 <span class="stat-value">${stats.total.toLocaleString()}歩</span>
