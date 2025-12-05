@@ -7,9 +7,18 @@
 データの更新は以下の手順に従って行ってください。
 
 ### 1. Excelファイルの更新
-新しい歩数データが含まれたExcelファイル（`step_data.xlsx.xlsx`）をプロジェクトのルートフォルダに上書き保存します。
+**重要: OneDrive上のファイルを編集している場合**
+このプロジェクトは `D:\iCloud\iCloudDrive\Cursor\Alkoo` で動作していますが、Excelファイルは `D:\OneDrive\CURSOR\Alkoo` にあるものを編集している可能性があります。
 
-### 2. データ変換の実行
+以下の同期スクリプトを実行することで、OneDriveから最新のExcelファイルをコピーしてデータ変換を一括で行えます。
+
+```powershell
+./sync-data.ps1
+```
+
+手動で行う場合は、新しい歩数データが含まれたExcelファイル（`step_data.xlsx.xlsx`）をプロジェクトのルートフォルダに上書き保存してください。
+
+### 2. データ変換の実行（sync-data.ps1を使った場合は不要）
 ターミナル（PowerShellなど）を開き、以下のコマンドを実行します。
 
 ```powershell

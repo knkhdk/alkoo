@@ -46,7 +46,7 @@ const stepData = {
         3437,
         5720,
         5055,
-        10333
+        9135
       ]
     },
     {
@@ -94,7 +94,7 @@ const stepData = {
         7135,
         10087,
         9382,
-        7736
+        9106
       ]
     },
     {
@@ -118,7 +118,7 @@ const stepData = {
         6937,
         6622,
         7099,
-        8418
+        5740
       ]
     },
     {
@@ -142,7 +142,7 @@ const stepData = {
         7986,
         8816,
         12137,
-        17885
+        15391
       ]
     },
     {
@@ -166,7 +166,7 @@ const stepData = {
         11437,
         10942,
         13271,
-        7328
+        8790
       ]
     },
     {
@@ -214,7 +214,7 @@ const stepData = {
         6285,
         5676,
         6129,
-        6090
+        6976
       ]
     },
     {
@@ -238,7 +238,7 @@ const stepData = {
         2094,
         2365,
         2130,
-        1783
+        1888
       ]
     },
     {
@@ -262,7 +262,7 @@ const stepData = {
         5877,
         6581,
         6860,
-        6893
+        6610
       ]
     }
   ]
@@ -710,8 +710,8 @@ const allDailyDataConverted = {
           14970,
           8611,
           7328,
-          null,
-          null,
+          7998,
+          8790,
           null,
           null,
           null,
@@ -747,8 +747,8 @@ const allDailyDataConverted = {
           15371,
           17797,
           17885,
-          null,
-          null,
+          15789,
+          15391,
           null,
           null,
           null,
@@ -784,8 +784,8 @@ const allDailyDataConverted = {
           4977,
           5799,
           7736,
-          null,
-          null,
+          7493,
+          9106,
           null,
           null,
           null,
@@ -821,8 +821,8 @@ const allDailyDataConverted = {
           4907,
           4750,
           8418,
-          null,
-          null,
+          6660,
+          5740,
           null,
           null,
           null,
@@ -858,8 +858,8 @@ const allDailyDataConverted = {
           0,
           3815,
           5842,
-          null,
-          null,
+          7425,
+          7091,
           null,
           null,
           null,
@@ -895,8 +895,8 @@ const allDailyDataConverted = {
           1160,
           1160,
           6090,
-          null,
-          null,
+          4936,
+          6976,
           null,
           null,
           null,
@@ -932,8 +932,8 @@ const allDailyDataConverted = {
           10622,
           11572,
           10333,
-          null,
-          null,
+          9222,
+          9135,
           null,
           null,
           null,
@@ -1006,8 +1006,8 @@ const allDailyDataConverted = {
           2463,
           2463,
           2463,
-          null,
-          null,
+          2463,
+          2463,
           null,
           null,
           null,
@@ -1043,8 +1043,8 @@ const allDailyDataConverted = {
           2020,
           1683,
           1783,
-          null,
-          null,
+          1745,
+          1888,
           null,
           null,
           null,

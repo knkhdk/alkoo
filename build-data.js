@@ -158,6 +158,16 @@ function convertDailyExcelData(worksheet, sheetName = null) {
     const participants = dataRows.map(row => {
         const name = row[nameIndex];
         if (!name) return null;
+        
+        // デバッグ: 12月シートの最初の参加者のデータ行を出力
+        if (sheetName && sheetName.includes('12月') && row[nameIndex].includes('見習いのコウキ')) {
+            console.log(`--- ${sheetName} - ${row[nameIndex]} のRawデータ ---`);
+            // 日付列のインデックスと値をペアで出力
+            const debugValues = dateColumnIndices.slice(0, 10).map(info => {
+                return `${info.index}:${row[info.index]}`;
+            });
+            console.log('最初の10日分のデータ:', debugValues.join(', '));
+        }
 
         const steps = dateColumnIndices.map(colInfo => {
             const value = row[colInfo.index];
