@@ -1,0 +1,465 @@
+/* ALKOO with わんこ風 ウォーム＆アクティブ デザイン */
+:root {
+    --primary-color: #FF9F43; /* 元気なオレンジ */
+    --primary-gradient: linear-gradient(135deg, #FF9F43 0%, #FFC107 100%); /* オレンジ〜イエロー */
+    --secondary-color: #8BC34A; /* 芝生グリーン */
+    --text-color: #5D4037; /* 優しいダークブラウン */
+    --light-text: #8D6E63; /* 薄いブラウン */
+    --background-color: #FFFDF9; /* 温かいアイボリー */
+    --card-bg: #FFFFFF;
+    --border-radius: 24px; /* さらに丸く */
+    --shadow: 0 8px 20px rgba(255, 159, 67, 0.15), 0 4px 6px rgba(93, 64, 55, 0.05);
+    --shadow-hover: 0 12px 30px rgba(255, 159, 67, 0.25), 0 6px 10px rgba(93, 64, 55, 0.08);
+}
+
+body {
+    font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', 'Nunito', sans-serif; /* 丸ゴシック */
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(#FFF3E0 10%, transparent 10%); /* 水玉模様のような薄い背景 */
+    background-size: 30px 30px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+}
+
+/* ヘッダー（ウェーブ装飾） */
+header {
+    text-align: center;
+    margin-bottom: 60px;
+    padding: 80px 20px 110px;
+    background: var(--primary-gradient);
+    color: white;
+    position: relative;
+    margin-top: -40px;
+    margin-left: -20px;
+    margin-right: -20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(255, 160, 0, 0.2);
+}
+
+/* 下部のウェーブ */
+header::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--background-color);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    transform: scaleX(1.2);
+}
+/* 背景のパターン合わせ */
+header::before {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-image: radial-gradient(#FFF3E0 10%, transparent 10%);
+    background-size: 30px 30px;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    transform: scaleX(1.2);
+    z-index: 1;
+}
+
+header h1 {
+    font-size: 3.2rem;
+    margin-bottom: 15px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 0 rgba(230, 126, 34, 0.5);
+    position: relative;
+    z-index: 2;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.subtitle {
+    color: #FFF8E1;
+    font-size: 1.2rem;
+    margin-top: 0;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+}
+
+/* 共通セクションスタイル */
+.team-comparison-section,
+.daily-section,
+.stats-section,
+#table-view,
+#chart-view {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 40px;
+    margin-bottom: 40px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 4px solid white; /* ポップな白枠 */
+}
+
+h2 {
+    font-size: 1.7rem;
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px dotted #FFCC80;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 中央揃え */
+}
+
+/* コントロールエリア */
+.controls, .daily-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+    background-color: #FFF8E1; /* 薄いオレンジ */
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid white;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+}
+
+label {
+    font-weight: 800;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+select {
+    padding: 12px 24px;
+    border: 2px solid #FFE0B2;
+    border-radius: 30px;
+    background-color: white;
+    font-size: 1rem;
+    color: var(--text-color);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s;
+    font-weight: 700;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF9F43' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 14px;
+    padding-right: 45px;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+select:focus, select:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.2);
+}
+
+/* ビュー切り替えボタン */
+.view-toggle, .daily-view-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.view-toggle button, .daily-view-toggle button {
+    padding: 12px 32px;
+    border: 2px solid #FFE0B2;
+    background-color: white;
+    color: var(--light-text);
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 800;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.view-toggle button:hover:not(.active), .daily-view-toggle button:hover:not(.active) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background-color: #FFF3E0;
+}
+
+.view-toggle button.active, .daily-view-toggle button.active {
+    background: var(--primary-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(255, 159, 67, 0.4);
+    transform: translateY(-2px) scale(1.05);
+}
+
+/* テーブル */
+.table-container {
+    overflow-x: auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 2px solid #FFF3E0;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 1rem;
+}
+
+th, td {
+    padding: 18px;
+    text-align: right;
+    border-bottom: 1px solid #FFF3E0;
+}
+
+th:first-child, td:first-child {
+    text-align: left;
+    font-weight: 800;
+    position: sticky;
+    left: 0;
+    background-color: var(--card-bg);
+    z-index: 1;
+    border-right: 2px solid #FFF3E0;
+    color: var(--text-color);
+}
+
+th {
+    background-color: #FFF8E1;
+    color: var(--text-color);
+    font-weight: 800;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+tr:hover td {
+    background-color: #FFF8E1;
+}
+
+.step-value {
+    font-family: 'Varela Round', 'Nunito', sans-serif;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.step-value.null {
+    color: #E0E0E0;
+}
+
+/* グラフ */
+.chart-container {
+    position: relative;
+    height: 450px;
+    width: 100%;
+    background-color: white;
+    border-radius: 16px;
+    padding: 15px;
+    border: 2px solid #FFF3E0;
+}
+
+/* 統計情報 */
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.stats-header h2 {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.stats-toggle {
+    display: flex;
+    background-color: #FFF3E0;
+    border-radius: 30px;
+    padding: 5px;
+    border: 1px solid #FFE0B2;
+}
+
+.stats-toggle button {
+    background-color: transparent;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #8D6E63;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.stats-toggle button.active {
+    background-color: white;
+    color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(255, 159, 67, 0.2);
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 30px;
+    padding: 30px 25px;
+    box-shadow: 0 6px 15px rgba(255, 159, 67, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 2px solid white;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) rotate(1deg);
+    box-shadow: 0 15px 35px rgba(255, 159, 67, 0.2);
+    border-color: #FFCC80;
+}
+
+/* カード内のアイコン装飾（足跡） */
+.stat-card::after {
+    content: '🐾';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 5rem;
+    color: var(--primary-color);
+    opacity: 0.1;
+    transform: rotate(30deg);
+}
+
+.stat-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 1.4rem;
+    font-weight: 800;
+    padding-bottom: 15px;
+    border-bottom: 2px dashed #FFE0B2;
+    text-align: center;
+}
+
+/* チーム名の色設定 */
+.team-north {
+    color: rgba(54, 162, 235, 1); /* 青（寒色） */
+    font-weight: 800;
+}
+
+.team-south {
+    color: rgba(255, 99, 132, 1); /* 赤（暖色） */
+    font-weight: 800;
+}
+
+.team-rabbit {
+    color: rgba(102, 126, 234, 1); /* 青紫 */
+    font-weight: 800;
+}
+
+.team-turtle {
+    color: rgba(118, 75, 162, 1); /* 紫 */
+    font-weight: 800;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+.stat-label {
+    color: var(--light-text);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.stat-value {
+    font-weight: 800;
+    color: var(--primary-color);
+    font-family: 'Varela Round', sans-serif;
+    font-size: 1.3rem;
+}
+
+/* スクロールバー */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #FFF3E0; 
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #FFCC80; 
+    border-radius: 6px;
+    border: 3px solid #FFF3E0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color); 
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0;
+    }
+    
+    header {
+        border-radius: 0;
+        padding: 50px 20px 80px;
+        margin-top: 0;
+    }
+    
+    header::after, header::before {
+        transform: scaleX(1.5); 
+    }
+    
+    header h1 {
+        font-size: 2.4rem;
+    }
+    
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        margin-bottom: 15px;
+    }
+    
+    .controls, .daily-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    select {
+        width: 100%;
+    }
+    
+    .common-section {
+        padding: 25px 15px;
+    }
+    
+    h2 {
+        font-size: 1.4rem;
+    }
+}

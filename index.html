@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邦栄建設 コバトン健康マイレージ</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👣</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&family=Nunito:wght@400;600;700;800&family=Varela+Round&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="data.js?v=9"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>邦栄建設 コバトン健康マイレージ</h1>
+            <p class="subtitle">参加者の日別・月別歩数データを表示</p>
+        </header>
+
+        <div id="team-comparison-section" class="team-comparison-section">
+            <h2>チーム平均値比較</h2>
+            <div class="daily-controls">
+                <label for="team-month-select">月を選択:</label>
+                <select id="team-month-select">
+                    <option value="">月を選択</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="team-comparison-chart"></canvas>
+            </div>
+        </div>
+
+        <div id="daily-section" class="daily-section">
+            <h2>日別データ</h2>
+            <div class="daily-controls">
+                <label for="daily-month-select">月を選択:</label>
+                <select id="daily-month-select">
+                    <option value="">月を選択</option>
+                </select>
+                <label for="daily-participant-filter">参加者でフィルター:</label>
+                <select id="daily-participant-filter">
+                    <option value="all">すべて表示</option>
+                </select>
+            </div>
+            <div class="daily-view-toggle">
+                <button id="daily-table-view-btn">テーブル表示</button>
+                <button id="daily-chart-view-btn" class="active">グラフ表示</button>
+            </div>
+            <div id="daily-table-view" class="daily-view-section">
+                <div class="table-container">
+                    <table id="daily-data-table">
+                        <thead>
+                            <tr>
+                                <th>参加者</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="daily-chart-view" class="daily-view-section active">
+                <div class="chart-container">
+                    <canvas id="daily-steps-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-section">
+                <label for="participant-filter">参加者でフィルター:</label>
+                <select id="participant-filter">
+                    <option value="all">すべて表示</option>
+                </select>
+            </div>
+            <div class="view-toggle">
+                <button id="table-view-btn">テーブル表示</button>
+                <button id="chart-view-btn" class="active">グラフ表示</button>
+            </div>
+        </div>
+
+        <div id="table-view" class="view-section">
+            <div class="table-container">
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>参加者</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="chart-view" class="view-section active">
+            <div class="chart-container">
+                <canvas id="steps-chart"></canvas>
+            </div>
+        </div>
+
+        <div id="stats-section" class="stats-section">
+            <h2>統計情報</h2>
+            <div id="stats-container"></div>
+        </div>
+    </div>
+
+    <script src="app.js?v=9"></script>
+</body>
+</html>
+

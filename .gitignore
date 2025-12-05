@@ -1,0 +1,35 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node modules
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Excel temporary files
+~$*.xlsx
+~$*.xls
+
+# Test files (optional - uncomment if you don't want to commit test files)
+# test_excel.py
+# test_excel_2.py
+
